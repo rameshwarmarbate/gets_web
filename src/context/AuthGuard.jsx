@@ -5,7 +5,7 @@ const AuthGuard = ({ children, screen }) => {
   const isLoggedIn = isUserAuthenticated();
 
   if (!isLoggedIn) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
   //   const hasMenuAccess = some(
   //     menuAccess,

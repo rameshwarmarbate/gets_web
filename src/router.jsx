@@ -9,6 +9,7 @@ import OrderList from "./pages/order/OrderList";
 import ResetPassword from "./pages/login/ResetPassword";
 import { isUserAuthenticated } from "./utils/helpers";
 import AuthGuard from "./context/AuthGuard";
+import ComingSoon from "./components/ComingSoon";
 
 const Navigation = () => {
   const isLoggedIn = isUserAuthenticated();
@@ -16,7 +17,7 @@ const Navigation = () => {
     <Router>
       <Routes>
         <Route
-          path="/"
+          path="/login"
           element={
             !isLoggedIn ? <Login /> : <Navigate replace to={"/orders"} />
           }
@@ -27,6 +28,38 @@ const Navigation = () => {
           element={
             <AuthGuard>
               <OrderList />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <AuthGuard>
+              <ComingSoon />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <AuthGuard>
+              <ComingSoon />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/customers"
+          element={
+            <AuthGuard>
+              <ComingSoon />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/salespersons"
+          element={
+            <AuthGuard>
+              <ComingSoon />
             </AuthGuard>
           }
         />

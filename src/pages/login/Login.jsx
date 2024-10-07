@@ -18,7 +18,7 @@ import ForgotPassword from "./ForgotPassword";
 import { usePostData } from "../../utils/api";
 import { Loader, Toast } from "../../components";
 import { useNavigate } from "react-router-dom";
-import { setToken } from "../../utils/helpers";
+import { setToken, setUser } from "../../utils/helpers";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -90,7 +90,9 @@ export default function Login() {
         })
         .then(({ data }) => {
           if (data.token) {
-            setToken(data.token, rememberMe.checked);
+            const { token, ...user } = data;
+            setToken(token, rememberMe.checked);
+            setUser(user);
             navigate("/orders", { replace: true });
           }
         })
