@@ -195,6 +195,12 @@ export default function Login() {
                 fullWidth
                 variant="outlined"
                 color={passwordError ? "error" : "primary"}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    handleSubmit()
+                  }
+                }}
               />
             </FormControl>
             <FormControlLabel

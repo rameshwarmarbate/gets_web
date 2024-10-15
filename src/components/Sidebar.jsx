@@ -1,4 +1,4 @@
-import * as React from "react";
+import  React, { useState } from "react";
 import GlobalStyles from "@mui/joy/GlobalStyles";
 import Box from "@mui/joy/Box";
 import Divider from "@mui/joy/Divider";
@@ -16,44 +16,29 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { map, upperFirst } from "lodash";
 import { MENU_LIST } from "../utils/constants";
 import { Avatar } from "@mui/joy";
-function Toggler({ defaultExpanded = false, renderToggle, children }) {
-  const [open, setOpen] = React.useState(defaultExpanded);
-  return (
-    <React.Fragment>
-      {renderToggle({ open, setOpen })}
-      <Box
-        sx={[
-          {
-            display: "grid",
-            transition: "0.2s ease",
-            "& > *": {
-              overflow: "hidden",
-            },
-          },
-          open ? { gridTemplateRows: "1fr" } : { gridTemplateRows: "0fr" },
-        ]}
-      >
-        {children}
-      </Box>
-    </React.Fragment>
-  );
-}
 
 export default function Sidebar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [isHovered, setIsHovered] = useState(false);
+
   const onNavigate = (url) => {
     navigate(url);
   };
+
   const userInfo = getUser();
   const { email, first_name = "", last_name } = userInfo || {};
+
   const logOut = () => {
     removeToken();
     navigate("/login", { replace: true });
   };
+
   return (
     <Sheet
       className="Sidebar"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       sx={{
         position: { xs: "fixed", md: "sticky" },
         transform: {
@@ -63,7 +48,7 @@ export default function Sidebar() {
         transition: "transform 0.4s, width 0.4s",
         zIndex: 10000,
         height: "100dvh",
-        width: "var(--Sidebar-width)",
+        width: isHovered ? "220px" : "70px",
         top: 0,
         p: 2,
         flexShrink: 0,
@@ -107,8 +92,7 @@ export default function Sidebar() {
         <IconButton variant="soft" color="primary" size="sm">
           <BrightnessAutoRoundedIcon />
         </IconButton>
-        <Typography level="title-lg">GETS</Typography>
-        {/* <ColorSchemeToggle sx={{ ml: "auto" }} /> */}
+        {isHovered ? <Typography level="title-lg">GETS</Typography> : null}
       </Box>
       <Box
         sx={{
@@ -117,6 +101,8 @@ export default function Sidebar() {
           flexGrow: 1,
           display: "flex",
           flexDirection: "column",
+          // opacity: isHovered ? 1 : 0,
+          transition: "opacity 0.4s ease",
           [`& .${listItemButtonClasses.root}`]: {
             gap: 1.5,
           },
@@ -134,13 +120,15 @@ export default function Sidebar() {
             return (
               <ListItem key={name}>
                 <ListItemButton
-                  selected={pathname == url}
+                  selected={pathname === url}
                   onClick={() => onNavigate(url)}
                 >
                   <Icon />
-                  <ListItemContent>
-                    <Typography level="title-sm">{name}</Typography>
-                  </ListItemContent>
+                  {isHovered && (
+                    <ListItemContent>
+                      <Typography level="title-sm">{name}</Typography>
+                    </ListItemContent>
+                  )}
                 </ListItemButton>
               </ListItem>
             );
@@ -158,16 +146,17 @@ export default function Sidebar() {
             flex: 1,
             alignItems: "center",
             justifyContent: "center",
+            opacity: isHovered ? 1 : 0,
+            transition: "opacity 0.4s ease",
           }}
         >
           <Typography level="title-sm">
             {upperFirst(first_name)} {upperFirst(last_name.charAt(0))}.
           </Typography>
-          {/* <Typography level="body-xs">{email}</Typography> */}
         </Box>
-        <IconButton onClick={logOut} size="sm" variant="plain" color="neutral">
+        {isHovered ? <IconButton onClick={logOut} size="sm" variant="plain" color="neutral">
           <LogoutRoundedIcon />
-        </IconButton>
+        </IconButton> : null}
       </Box>
     </Sheet>
   );

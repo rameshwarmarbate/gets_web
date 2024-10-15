@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { CssVarsProvider } from "@mui/joy/styles";
 import CssBaseline from "@mui/joy/CssBaseline";
 import Box from "@mui/joy/Box";
@@ -14,8 +14,20 @@ import OrderTable from "../../components/OrderTable";
 import OrderList from "../../components/OrderList";
 import Header from "../../components/Header";
 import { AddCircleOutlineRounded } from "@mui/icons-material";
+import AddOrder from "./AddOrder";
+import { Modal } from "@mui/joy";
 
-export default function JoyOrderDashboardTemplate() {
+export default function OrderDashboardTemplate() {
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
     <CssVarsProvider disableTransitionOnChange>
       <CssBaseline />
@@ -77,12 +89,16 @@ export default function JoyOrderDashboardTemplate() {
               color="primary"
               startDecorator={<AddCircleOutlineRounded />}
               size="sm"
+              onClick={handleClickOpen}
             >
               Add Order
             </Button>
           </Box>
           <OrderTable />
           <OrderList />
+          <Modal open={open} onClose={handleClose}>
+            <AddOrder open={open} handleClose={handleClose} />
+          </Modal>
         </Box>
       </Box>
     </CssVarsProvider>

@@ -29,6 +29,7 @@ const listItems = [
     id: "INV-1234",
     date: "Feb 3, 2023",
     status: "Refunded",
+    product: "Hot Water Bag",
     customer: {
       initial: "O",
       name: "Olivia Ryhe",
@@ -39,6 +40,7 @@ const listItems = [
     id: "INV-1233",
     date: "Feb 3, 2023",
     status: "Paid",
+    product: "Hot Water Bag",
     customer: {
       initial: "S",
       name: "Steve Hampton",
@@ -49,6 +51,7 @@ const listItems = [
     id: "INV-1232",
     date: "Feb 3, 2023",
     status: "Refunded",
+    product: "Hot Water Bag",
     customer: {
       initial: "C",
       name: "Ciaran Murray",
@@ -59,6 +62,7 @@ const listItems = [
     id: "INV-1231",
     date: "Feb 3, 2023",
     status: "Refunded",
+    product: "Hot Water Bag",
     customer: {
       initial: "M",
       name: "Maria Macdonald",
@@ -69,6 +73,7 @@ const listItems = [
     id: "INV-1230",
     date: "Feb 3, 2023",
     status: "Cancelled",
+    product: "Hot Water Bag",
     customer: {
       initial: "C",
       name: "Charles Fulton",
@@ -79,6 +84,7 @@ const listItems = [
     id: "INV-1229",
     date: "Feb 3, 2023",
     status: "Cancelled",
+    product: "Hot Water Bag",
     customer: {
       initial: "J",
       name: "Jay Hooper",

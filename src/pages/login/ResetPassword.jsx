@@ -167,6 +167,12 @@ export default function ResetPassword() {
                 variant="outlined"
                 color={confirmPasswordError ? "error" : "primary"}
                 sx={{ ariaLabel: "confirmPassword" }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    handleSubmit()
+                  }
+                }}
               />
             </FormControl>
             <Button

@@ -77,6 +77,12 @@ function ForgotPassword({ open, handleClose, showToast }) {
             fullWidth
             color={emailError ? "error" : "primary"}
             sx={{ ariaLabel: "email" }}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                handleSubmit()
+              }
+            }}
           />
         </FormControl>
       </DialogContent>

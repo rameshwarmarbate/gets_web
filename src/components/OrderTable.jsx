@@ -39,6 +39,7 @@ const rows = [
     id: "INV-1234",
     date: "Feb 3, 2023",
     status: "Refunded",
+    product: "Hot Water Bag",
     customer: {
       initial: "O",
       name: "Olivia Ryhe",
@@ -49,6 +50,7 @@ const rows = [
     id: "INV-1233",
     date: "Feb 3, 2023",
     status: "Paid",
+    product: "Hot Water Bag",
     customer: {
       initial: "S",
       name: "Steve Hampton",
@@ -59,6 +61,7 @@ const rows = [
     id: "INV-1232",
     date: "Feb 3, 2023",
     status: "Refunded",
+    product: "Hot Water Bag",
     customer: {
       initial: "C",
       name: "Ciaran Murray",
@@ -69,6 +72,7 @@ const rows = [
     id: "INV-1231",
     date: "Feb 3, 2023",
     status: "Refunded",
+    product: "Hot Water Bag",
     customer: {
       initial: "M",
       name: "Maria Macdonald",
@@ -79,6 +83,7 @@ const rows = [
     id: "INV-1230",
     date: "Feb 3, 2023",
     status: "Cancelled",
+    product: "Hot Water Bag",
     customer: {
       initial: "C",
       name: "Charles Fulton",
@@ -89,6 +94,7 @@ const rows = [
     id: "INV-1229",
     date: "Feb 3, 2023",
     status: "Cancelled",
+    product: "Hot Water Bag",
     customer: {
       initial: "J",
       name: "Jay Hooper",
@@ -99,6 +105,7 @@ const rows = [
     id: "INV-1228",
     date: "Feb 3, 2023",
     status: "Refunded",
+    product: "Hot Water Bag",
     customer: {
       initial: "K",
       name: "Krystal Stevens",
@@ -109,6 +116,7 @@ const rows = [
     id: "INV-1227",
     date: "Feb 3, 2023",
     status: "Paid",
+    product: "Hot Water Bag",
     customer: {
       initial: "S",
       name: "Sachin Flynn",
@@ -119,6 +127,7 @@ const rows = [
     id: "INV-1226",
     date: "Feb 3, 2023",
     status: "Cancelled",
+    product: "Hot Water Bag",
     customer: {
       initial: "B",
       name: "Bradley Rosales",
@@ -129,6 +138,7 @@ const rows = [
     id: "INV-1225",
     date: "Feb 3, 2023",
     status: "Paid",
+    product: "Hot Water Bag",
     customer: {
       initial: "O",
       name: "Olivia Ryhe",
@@ -139,6 +149,7 @@ const rows = [
     id: "INV-1224",
     date: "Feb 3, 2023",
     status: "Cancelled",
+    product: "Hot Water Bag",
     customer: {
       initial: "S",
       name: "Steve Hampton",
@@ -149,6 +160,7 @@ const rows = [
     id: "INV-1223",
     date: "Feb 3, 2023",
     status: "Paid",
+    product: "Hot Water Bag",
     customer: {
       initial: "C",
       name: "Ciaran Murray",
@@ -159,6 +171,7 @@ const rows = [
     id: "INV-1221",
     date: "Feb 3, 2023",
     status: "Refunded",
+    product: "Hot Water Bag",
     customer: {
       initial: "M",
       name: "Maria Macdonald",
@@ -169,6 +182,7 @@ const rows = [
     id: "INV-1220",
     date: "Feb 3, 2023",
     status: "Paid",
+    product: "Hot Water Bag",
     customer: {
       initial: "C",
       name: "Charles Fulton",
@@ -179,6 +193,7 @@ const rows = [
     id: "INV-1219",
     date: "Feb 3, 2023",
     status: "Cancelled",
+    product: "Hot Water Bag",
     customer: {
       initial: "J",
       name: "Jay Hooper",
@@ -189,6 +204,7 @@ const rows = [
     id: "INV-1218",
     date: "Feb 3, 2023",
     status: "Cancelled",
+    product: "Hot Water Bag",
     customer: {
       initial: "K",
       name: "Krystal Stevens",
@@ -199,6 +215,7 @@ const rows = [
     id: "INV-1217",
     date: "Feb 3, 2023",
     status: "Paid",
+    product: "Hot Water Bag",
     customer: {
       initial: "S",
       name: "Sachin Flynn",
@@ -209,6 +226,7 @@ const rows = [
     id: "INV-1216",
     date: "Feb 3, 2023",
     status: "Cancelled",
+    product: "Hot Water Bag",
     customer: {
       initial: "B",
       name: "Bradley Rosales",
@@ -259,19 +277,16 @@ export default function OrderTable() {
   const renderFilters = () => (
     <React.Fragment>
       <FormControl size="sm">
-        <FormLabel>Status</FormLabel>
+        <FormLabel>Product</FormLabel>
         <Select
           size="sm"
-          placeholder="Filter by status"
+          placeholder="Filter by product"
           slotProps={{ button: { sx: { whiteSpace: "nowrap" } } }}
         >
-          <Option value="paid">Paid</Option>
-          <Option value="pending">Pending</Option>
-          <Option value="refunded">Refunded</Option>
-          <Option value="cancelled">Cancelled</Option>
+          <Option value="paid">Hot Water Bag</Option>
         </Select>
       </FormControl>
-      <FormControl size="sm">
+      {/* <FormControl size="sm">
         <FormLabel>Category</FormLabel>
         <Select size="sm" placeholder="All">
           <Option value="all">All</Option>
@@ -279,7 +294,7 @@ export default function OrderTable() {
           <Option value="purchase">Purchase</Option>
           <Option value="debit">Debit</Option>
         </Select>
-      </FormControl>
+      </FormControl> */}
       <FormControl size="sm">
         <FormLabel>Customer</FormLabel>
         <Select size="sm" placeholder="All">
@@ -352,6 +367,15 @@ export default function OrderTable() {
           />
         </FormControl>
         {renderFilters()}
+        <FormControl size="sm">
+          <br />
+          <Button
+            color="primary"
+            size="sm"
+          >
+            Apply
+          </Button>
+        </FormControl>
       </Box>
       <Sheet
         className="OrderTableContainer"
@@ -428,9 +452,9 @@ export default function OrderTable() {
                 </Link>
               </th>
               <th style={{ width: 140, padding: "12px 6px" }}>Date</th>
-              <th style={{ width: 140, padding: "12px 6px" }}>Status</th>
+              <th style={{ width: 140, padding: "12px 6px" }}>Product</th>
               <th style={{ width: 240, padding: "12px 6px" }}>Customer</th>
-              <th style={{ width: 140, padding: "12px 6px" }}> </th>
+              <th style={{ width: 140, padding: "12px 6px" }}>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -459,7 +483,7 @@ export default function OrderTable() {
                   <Typography level="body-xs">{row.date}</Typography>
                 </td>
                 <td>
-                  <Chip
+                  {/* <Chip
                     variant="soft"
                     size="sm"
                     startDecorator={
@@ -478,7 +502,10 @@ export default function OrderTable() {
                     }
                   >
                     {row.status}
-                  </Chip>
+                  </Chip> */}
+                  <Typography level="body-xs">
+                    {row.status}
+                  </Typography>
                 </td>
                 <td>
                   <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
@@ -487,9 +514,9 @@ export default function OrderTable() {
                       <Typography level="body-xs">
                         {row.customer.name}
                       </Typography>
-                      <Typography level="body-xs">
+                      {/* <Typography level="body-xs">
                         {row.customer.email}
-                      </Typography>
+                      </Typography> */}
                     </div>
                   </Box>
                 </td>
@@ -498,7 +525,12 @@ export default function OrderTable() {
                     <Link level="body-xs" component="button">
                       Download
                     </Link>
-                    <RowMenu />
+                    {/* <RowMenu /> */}
+                    <Button variant="plain">
+                      <Typography level="body-xs">
+                        View
+                      </Typography>
+                    </Button>
                   </Box>
                 </td>
               </tr>
