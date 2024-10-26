@@ -58,4 +58,37 @@ export function toggleSidebar() {
   }
 }
 
-export { isUserAuthenticated, setToken, removeToken, setUser, getUser };
+const isValidMobileNumber = (number = "") => {
+  const mobilePattern = /^(?:(?:\+91|91|0)?[789]\d{9})$/;
+  return mobilePattern.test(number);
+};
+const isValidEmail = (email = "") => {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailPattern.test(email);
+};
+const isValidPinCode = (pinCode) => {
+  const pinCodePattern = /^\d{6}$/;
+  return pinCodePattern.test(pinCode);
+};
+
+const isValidGSTNo = (gstNo) => {
+  const gstNoPattern =
+    /^[0-9]{2}[A-Z]{4}[0-9]{4}[A-Z]{1}[0-9]{1}[Z]{1}[0-9A-Z]{1}$/;
+  return gstNoPattern.test(gstNo);
+};
+const isValidName = (name) => {
+  const namePattern = /^[A-Za-z\s]+$/;
+  return namePattern.test(name);
+};
+export {
+  isUserAuthenticated,
+  setToken,
+  removeToken,
+  setUser,
+  getUser,
+  isValidMobileNumber,
+  isValidEmail,
+  isValidPinCode,
+  isValidGSTNo,
+  isValidName,
+};

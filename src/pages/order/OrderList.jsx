@@ -15,9 +15,11 @@ import OrderList from "../../components/OrderList";
 import Header from "../../components/Header";
 import { AddCircleOutlineRounded } from "@mui/icons-material";
 import AddOrder from "./AddOrder";
+import { Toast } from "../../components";
 
 export default function OrderDashboardTemplate() {
   const [open, setOpen] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -99,7 +101,19 @@ export default function OrderDashboardTemplate() {
           </Box>
         </Box>
       </CssVarsProvider>
-      {open ? <AddOrder open={open} handleClose={handleClose} /> : null}
+      {open ? (
+        <AddOrder
+          open={open}
+          handleClose={handleClose}
+          setToastOpen={setToastOpen}
+        />
+      ) : null}
+      <Toast
+        open={toastOpen}
+        handleClose={() => setToastOpen(false)}
+        message="Order created successfully."
+        severity="success"
+      />
     </>
   );
 }

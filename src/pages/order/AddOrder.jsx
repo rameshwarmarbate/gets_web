@@ -12,8 +12,16 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Loader } from "../../components";
-import { useGetData } from "../../utils/api";
+import { Loader, Toast } from "../../components";
+import { useGetData, usePostData } from "../../utils/api";
+import {
+  getUser,
+  isValidEmail,
+  isValidGSTNo,
+  isValidMobileNumber,
+  isValidName,
+  isValidPinCode,
+} from "../../utils/helpers";
 
 const initialStates = {
   firstName: "",
@@ -25,7 +33,7 @@ const initialStates = {
   city: "",
   state: "",
   country: "",
-  selectedProduct: "",
+  selectedProduct: null,
   quantity: "",
   unitPrice: "",
   gstNo: "",
@@ -46,7 +54,7 @@ const fetchLocationByPinCode = async (pinCode) => {
   }
 };
 
-export default function AddOrderModal({ open, handleClose }) {
+export default function AddOrderModal({ open, handleClose, setToastOpen }) {
   const [orderData, setOrderData] = useState(initialStates);
 
   const [error, setErrors] = useState(initialStates);
@@ -54,6 +62,16 @@ export default function AddOrderModal({ open, handleClose }) {
   const { data, isLoading: loading } = useGetData(
     "device/get-device-by-name?name=Electric Hot Water Bag"
   );
+  const mutation = usePostData("orders/create_order");
+
+  useEffect(() => {
+    if (data?.length) {
+      setOrderData((prevState) => ({
+        ...prevState,
+        selectedProduct: data[0],
+      }));
+    }
+  }, [data]);
   useEffect(() => {
     const { pinCode } = orderData;
     if (pinCode.length === 6) {
@@ -76,12 +94,98 @@ export default function AddOrderModal({ open, handleClose }) {
     const { name, value } = e.target;
     setOrderData((prevState) => ({ ...prevState, [name]: value }));
   };
+  const handleProductChange = (e, value) => {
+    setOrderData((prevState) => ({ ...prevState, selectedProduct: value }));
+  };
+
+  const validateFields = () => {
+    const newErrors = {};
+    if (!orderData.firstName) {
+      newErrors.firstName = "First Name is required.";
+    } else if (!isValidName(orderData.firstName)) {
+      newErrors.firstName =
+        "First Name must contain only alphabetic characters.";
+    }
+    if (!orderData.lastName) {
+      newErrors.lastName = "Last Name is required.";
+    } else if (!orderData.lastName || !isValidName(orderData.lastName)) {
+      newErrors.lastName = "Last Name must contain only alphabetic characters.";
+    }
+    if (!orderData.mobileNo) {
+      newErrors.mobileNo = "Mobile No is required.";
+    } else if (!isValidMobileNumber(orderData.mobileNo)) {
+      newErrors.mobileNo = "Mobile No must be a valid Indian number.";
+    }
+    if (orderData.email && !isValidEmail(orderData.email)) {
+      newErrors.email = "Please enter a valid email address.";
+    }
+    if (orderData.pinCode && !isValidPinCode(orderData.pinCode)) {
+      newErrors.pinCode = "PIN Code must be a 6-digit number.";
+    }
+    if (orderData.gstNo && !isValidGSTNo(orderData.gstNo)) {
+      newErrors.gstNo = "GST No must be in valid format (15 characters).";
+    }
+    // if (!orderData.address) newErrors.address = "Address is required.";
+    // if (!orderData.pinCode) newErrors.pinCode = "Pin Code is required.";
+    // if (!orderData.city) newErrors.city = "City is required.";
+    // if (!orderData.state) newErrors.state = "State is required.";
+    // if (!orderData.country) newErrors.country = "Country is required.";
+    if (!orderData.selectedProduct)
+      newErrors.selectedProduct = "Product is required.";
+    if (!orderData.quantity) newErrors.quantity = "Quantity is required.";
+    if (!orderData.unitPrice) newErrors.unitPrice = "Unit Price is required.";
+    return newErrors;
+  };
 
   const handleSubmit = () => {
-    // Handle form submission logic here
-    console.log({ orderData });
-    handleClose(); // Close the modal after submission
+    const validationErrors = validateFields();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    const {
+      selectedProduct,
+      unitPrice,
+      quantity,
+      firstName,
+      lastName,
+      mobile,
+      email,
+      address,
+      pinCode,
+      city,
+      state,
+      country,
+      gstNo,
+    } = orderData;
+    const userInfo = getUser();
+
+    const requestObject = {
+      device_id: selectedProduct?.id,
+      unit_price: parseFloat(unitPrice),
+      quantity: parseInt(quantity, 10),
+      first_name: firstName,
+      last_name: lastName,
+      mobile,
+      email,
+      address,
+      pincode: pinCode,
+      city,
+      state,
+      country,
+      gst_no: gstNo,
+      user_id: userInfo.id,
+    };
+
+    mutation
+      .mutateAsync(requestObject)
+      .then(({ data }) => {
+        setToastOpen(true);
+        handleClose();
+      })
+      .catch((error) => {});
   };
+  const isMobileNumberValid = isValidMobileNumber(orderData.mobileNo || "");
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
       <DialogTitle>Add Order</DialogTitle>
@@ -299,22 +403,24 @@ export default function AddOrderModal({ open, handleClose }) {
             autoComplete
             autoSelect
             fullWidth
-            options={data}
+            options={data || []}
+            value={orderData.selectedProduct}
+            getOptionLabel={(option) => option?.title || ""}
+            onChange={handleProductChange}
             renderInput={(params) => (
               <TextField
                 {...params}
                 label="Select Product"
                 placeholder="Select Product"
-                value={orderData.selectedProduct}
-                onChange={handleOrderChange}
+                required
               />
             )}
-            getOptionLabel={(option) => option.title}
           />
           <FormControl>
             <TextField
               id="quantity"
               autoComplete="quantity"
+              required
               size="small"
               margin="dense"
               name="quantity"
@@ -335,6 +441,7 @@ export default function AddOrderModal({ open, handleClose }) {
             <TextField
               id="unit-price"
               autoComplete="unit-price"
+              required
               size="small"
               margin="dense"
               name="unitPrice"
@@ -358,7 +465,11 @@ export default function AddOrderModal({ open, handleClose }) {
         <Button variant="contained" onClick={handleSubmit}>
           Save
         </Button>
-        <Button variant="contained" onClick={handleSubmit} disabled>
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          disabled={!isMobileNumberValid}
+        >
           Save & Whatsapp
         </Button>
       </DialogActions>
