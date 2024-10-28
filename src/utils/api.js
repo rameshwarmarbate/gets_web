@@ -1,15 +1,18 @@
 // utils/api.js
 
 import { useQuery, useMutation, useQueryClient } from "react-query";
+import { getToken } from "./helpers";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 // Generic function to handle fetch requests
-const fetchApi = async (endpoint, options = {}) => {
+export const fetchApi = async (endpoint, options = {}) => {
+  const token = getToken();
   const response = await fetch(`${BASE_URL}${endpoint}`, {
     headers: {
       "Content-Type": "application/json",
       ...options.headers,
+      authorization: "Bearer " + token,
     },
     ...options,
   });

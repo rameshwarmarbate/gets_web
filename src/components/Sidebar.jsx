@@ -1,4 +1,4 @@
-import  React, { useState } from "react";
+import React, { useState } from "react";
 import GlobalStyles from "@mui/joy/GlobalStyles";
 import Box from "@mui/joy/Box";
 import Divider from "@mui/joy/Divider";
@@ -154,9 +154,16 @@ export default function Sidebar() {
             {upperFirst(first_name)} {upperFirst(last_name.charAt(0))}.
           </Typography>
         </Box>
-        {isHovered ? <IconButton onClick={logOut} size="sm" variant="plain" color="neutral">
-          <LogoutRoundedIcon />
-        </IconButton> : null}
+        {isHovered ? (
+          <IconButton
+            onClick={logOut}
+            size="sm"
+            variant="plain"
+            color="neutral"
+          >
+            <LogoutRoundedIcon />
+          </IconButton>
+        ) : null}
       </Box>
     </Sheet>
   );

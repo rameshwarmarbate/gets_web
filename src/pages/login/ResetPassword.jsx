@@ -78,7 +78,7 @@ export default function ResetPassword() {
             const id = setTimeout(() => {
               clearTimeout(id);
               navigate("/", { replace: true });
-            }, 5000);
+            }, 3000);
           }
         })
         .catch((error) => {

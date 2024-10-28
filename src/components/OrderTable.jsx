@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Avatar from "@mui/joy/Avatar";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
@@ -33,207 +33,8 @@ import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
-
-const rows = [
-  {
-    id: "INV-1234",
-    date: "Feb 3, 2023",
-    status: "Refunded",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "O",
-      name: "Olivia Ryhe",
-      email: "olivia@email.com",
-    },
-  },
-  {
-    id: "INV-1233",
-    date: "Feb 3, 2023",
-    status: "Paid",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "S",
-      name: "Steve Hampton",
-      email: "steve.hamp@email.com",
-    },
-  },
-  {
-    id: "INV-1232",
-    date: "Feb 3, 2023",
-    status: "Refunded",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "C",
-      name: "Ciaran Murray",
-      email: "ciaran.murray@email.com",
-    },
-  },
-  {
-    id: "INV-1231",
-    date: "Feb 3, 2023",
-    status: "Refunded",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "M",
-      name: "Maria Macdonald",
-      email: "maria.mc@email.com",
-    },
-  },
-  {
-    id: "INV-1230",
-    date: "Feb 3, 2023",
-    status: "Cancelled",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "C",
-      name: "Charles Fulton",
-      email: "fulton@email.com",
-    },
-  },
-  {
-    id: "INV-1229",
-    date: "Feb 3, 2023",
-    status: "Cancelled",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "J",
-      name: "Jay Hooper",
-      email: "hooper@email.com",
-    },
-  },
-  {
-    id: "INV-1228",
-    date: "Feb 3, 2023",
-    status: "Refunded",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "K",
-      name: "Krystal Stevens",
-      email: "k.stevens@email.com",
-    },
-  },
-  {
-    id: "INV-1227",
-    date: "Feb 3, 2023",
-    status: "Paid",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "S",
-      name: "Sachin Flynn",
-      email: "s.flyn@email.com",
-    },
-  },
-  {
-    id: "INV-1226",
-    date: "Feb 3, 2023",
-    status: "Cancelled",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "B",
-      name: "Bradley Rosales",
-      email: "brad123@email.com",
-    },
-  },
-  {
-    id: "INV-1225",
-    date: "Feb 3, 2023",
-    status: "Paid",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "O",
-      name: "Olivia Ryhe",
-      email: "olivia@email.com",
-    },
-  },
-  {
-    id: "INV-1224",
-    date: "Feb 3, 2023",
-    status: "Cancelled",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "S",
-      name: "Steve Hampton",
-      email: "steve.hamp@email.com",
-    },
-  },
-  {
-    id: "INV-1223",
-    date: "Feb 3, 2023",
-    status: "Paid",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "C",
-      name: "Ciaran Murray",
-      email: "ciaran.murray@email.com",
-    },
-  },
-  {
-    id: "INV-1221",
-    date: "Feb 3, 2023",
-    status: "Refunded",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "M",
-      name: "Maria Macdonald",
-      email: "maria.mc@email.com",
-    },
-  },
-  {
-    id: "INV-1220",
-    date: "Feb 3, 2023",
-    status: "Paid",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "C",
-      name: "Charles Fulton",
-      email: "fulton@email.com",
-    },
-  },
-  {
-    id: "INV-1219",
-    date: "Feb 3, 2023",
-    status: "Cancelled",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "J",
-      name: "Jay Hooper",
-      email: "hooper@email.com",
-    },
-  },
-  {
-    id: "INV-1218",
-    date: "Feb 3, 2023",
-    status: "Cancelled",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "K",
-      name: "Krystal Stevens",
-      email: "k.stevens@email.com",
-    },
-  },
-  {
-    id: "INV-1217",
-    date: "Feb 3, 2023",
-    status: "Paid",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "S",
-      name: "Sachin Flynn",
-      email: "s.flyn@email.com",
-    },
-  },
-  {
-    id: "INV-1216",
-    date: "Feb 3, 2023",
-    status: "Cancelled",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "B",
-      name: "Bradley Rosales",
-      email: "brad123@email.com",
-    },
-  },
-];
+import { formatDate, getInitial } from "../utils/helpers";
+import Pagination from "./Pagination";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -270,10 +71,19 @@ function RowMenu() {
     </Dropdown>
   );
 }
-export default function OrderTable() {
+
+export default function OrderTable({
+  orderData,
+  pagination,
+  handlePageChange,
+  onViewOrder,
+  onDownload,
+}) {
   const [order, setOrder] = React.useState("desc");
   const [selected, setSelected] = React.useState([]);
   const [open, setOpen] = React.useState(false);
+  const { data: orders = [] } = orderData || {};
+
   const renderFilters = () => (
     <React.Fragment>
       <FormControl size="sm">
@@ -369,10 +179,7 @@ export default function OrderTable() {
         {renderFilters()}
         <FormControl size="sm">
           <br />
-          <Button
-            color="primary"
-            size="sm"
-          >
+          <Button color="primary" size="sm">
             Apply
           </Button>
         </FormControl>
@@ -411,16 +218,16 @@ export default function OrderTable() {
                 <Checkbox
                   size="sm"
                   indeterminate={
-                    selected.length > 0 && selected.length !== rows.length
+                    selected.length > 0 && selected.length !== orders.length
                   }
-                  checked={selected.length === rows.length}
+                  checked={selected.length === orders.length}
                   onChange={(event) => {
                     setSelected(
-                      event.target.checked ? rows.map((row) => row.id) : []
+                      event.target.checked ? orders.map((row) => row.id) : []
                     );
                   }}
                   color={
-                    selected.length > 0 || selected.length === rows.length
+                    selected.length > 0 || selected.length === orders.length
                       ? "primary"
                       : undefined
                   }
@@ -454,11 +261,12 @@ export default function OrderTable() {
               <th style={{ width: 140, padding: "12px 6px" }}>Date</th>
               <th style={{ width: 140, padding: "12px 6px" }}>Product</th>
               <th style={{ width: 240, padding: "12px 6px" }}>Customer</th>
+              <th style={{ width: 100, padding: "12px 6px" }}>Quantity</th>
               <th style={{ width: 140, padding: "12px 6px" }}>Action</th>
             </tr>
           </thead>
           <tbody>
-            {[...rows].sort(getComparator(order, "id")).map((row) => (
+            {[...orders].sort(getComparator(order, "id")).map((row) => (
               <tr key={row.id}>
                 <td style={{ textAlign: "center", width: 120 }}>
                   <Checkbox
@@ -477,10 +285,12 @@ export default function OrderTable() {
                   />
                 </td>
                 <td>
-                  <Typography level="body-xs">{row.id}</Typography>
+                  <Typography level="body-xs">{row.order_no}</Typography>
                 </td>
                 <td>
-                  <Typography level="body-xs">{row.date}</Typography>
+                  <Typography level="body-xs">
+                    {formatDate(row.created_at)}
+                  </Typography>
                 </td>
                 <td>
                   {/* <Chip
@@ -503,16 +313,16 @@ export default function OrderTable() {
                   >
                     {row.status}
                   </Chip> */}
-                  <Typography level="body-xs">
-                    {row.status}
-                  </Typography>
+                  <Typography level="body-xs">{row.device?.title}</Typography>
                 </td>
                 <td>
                   <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                    <Avatar size="sm">{row.customer.initial}</Avatar>
+                    <Avatar size="sm">
+                      {getInitial(row.customer?.first_name)}
+                    </Avatar>
                     <div>
                       <Typography level="body-xs">
-                        {row.customer.name}
+                        {row.customer?.first_name} {row.customer?.last_name}
                       </Typography>
                       {/* <Typography level="body-xs">
                         {row.customer.email}
@@ -521,15 +331,20 @@ export default function OrderTable() {
                   </Box>
                 </td>
                 <td>
+                  <Typography level="body-xs">{row.quantity}</Typography>
+                </td>
+                <td>
                   <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                    <Link level="body-xs" component="button">
+                    <Link
+                      level="body-xs"
+                      component="button"
+                      onClick={() => onDownload(row)}
+                    >
                       Download
                     </Link>
                     {/* <RowMenu /> */}
-                    <Button variant="plain">
-                      <Typography level="body-xs">
-                        View
-                      </Typography>
+                    <Button variant="plain" onClick={() => onViewOrder(row)}>
+                      <Typography level="body-xs">View</Typography>
                     </Button>
                   </Box>
                 </td>
@@ -538,48 +353,10 @@ export default function OrderTable() {
           </tbody>
         </Table>
       </Sheet>
-      <Box
-        className="Pagination-laptopUp"
-        sx={{
-          pt: 2,
-          gap: 1,
-          [`& .${iconButtonClasses.root}`]: { borderRadius: "50%" },
-          display: {
-            xs: "none",
-            md: "flex",
-          },
-        }}
-      >
-        <Button
-          size="sm"
-          variant="outlined"
-          color="neutral"
-          startDecorator={<KeyboardArrowLeftIcon />}
-        >
-          Previous
-        </Button>
-
-        <Box sx={{ flex: 1 }} />
-        {["1", "2", "3", "…", "8", "9", "10"].map((page) => (
-          <IconButton
-            key={page}
-            size="sm"
-            variant={Number(page) ? "outlined" : "plain"}
-            color="neutral"
-          >
-            {page}
-          </IconButton>
-        ))}
-        <Box sx={{ flex: 1 }} />
-        <Button
-          size="sm"
-          variant="outlined"
-          color="neutral"
-          endDecorator={<KeyboardArrowRightIcon />}
-        >
-          Next
-        </Button>
-      </Box>
+      <Pagination
+        onPageChange={(data) => handlePageChange(data)}
+        {...pagination}
+      />
     </React.Fragment>
   );
 }

@@ -1,5 +1,4 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/joy/Box";
 import Avatar from "@mui/joy/Avatar";
 import Chip from "@mui/joy/Chip";
@@ -23,75 +22,10 @@ import BlockIcon from "@mui/icons-material/Block";
 import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-
-const listItems = [
-  {
-    id: "INV-1234",
-    date: "Feb 3, 2023",
-    status: "Refunded",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "O",
-      name: "Olivia Ryhe",
-      email: "olivia@email.com",
-    },
-  },
-  {
-    id: "INV-1233",
-    date: "Feb 3, 2023",
-    status: "Paid",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "S",
-      name: "Steve Hampton",
-      email: "steve.hamp@email.com",
-    },
-  },
-  {
-    id: "INV-1232",
-    date: "Feb 3, 2023",
-    status: "Refunded",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "C",
-      name: "Ciaran Murray",
-      email: "ciaran.murray@email.com",
-    },
-  },
-  {
-    id: "INV-1231",
-    date: "Feb 3, 2023",
-    status: "Refunded",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "M",
-      name: "Maria Macdonald",
-      email: "maria.mc@email.com",
-    },
-  },
-  {
-    id: "INV-1230",
-    date: "Feb 3, 2023",
-    status: "Cancelled",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "C",
-      name: "Charles Fulton",
-      email: "fulton@email.com",
-    },
-  },
-  {
-    id: "INV-1229",
-    date: "Feb 3, 2023",
-    status: "Cancelled",
-    product: "Hot Water Bag",
-    customer: {
-      initial: "J",
-      name: "Jay Hooper",
-      email: "hooper@email.com",
-    },
-  },
-];
+import { map } from "lodash";
+import { formatDate, getInitial } from "../utils/helpers";
+import { Button } from "@mui/joy";
+import PaginationMobile from "./PaginationMobile";
 
 function RowMenu() {
   return (
@@ -113,10 +47,17 @@ function RowMenu() {
   );
 }
 
-export default function OrderList() {
+export default function OrderList({
+  orderData,
+  pagination,
+  handlePageChange,
+  onViewOrder,
+  onDownload,
+}) {
+  const { data: orders = [] } = orderData || {};
   return (
-    <Box sx={{ display: { xs: "block", sm: "none" } }}>
-      {listItems.map((listItem) => (
+    <Box sx={{ display: { xs: "block", sm: "none" }, overflow: "scroll" }}>
+      {map(orders, (listItem) => (
         <List key={listItem.id} size="sm" sx={{ "--ListItem-paddingX": 0 }}>
           <ListItem
             sx={{
@@ -129,11 +70,13 @@ export default function OrderList() {
               sx={{ display: "flex", gap: 2, alignItems: "start" }}
             >
               <ListItemDecorator>
-                <Avatar size="sm">{listItem.customer.initial}</Avatar>
+                <Avatar size="sm">
+                  {getInitial(listItem.customer?.first_name)}
+                </Avatar>
               </ListItemDecorator>
               <div>
                 <Typography gutterBottom sx={{ fontWeight: 600 }}>
-                  {listItem.customer.name}
+                  {listItem.customer?.first_name} {listItem.customer?.last_name}
                 </Typography>
                 <Typography level="body-xs" gutterBottom>
                   {listItem.customer.email}
@@ -147,21 +90,30 @@ export default function OrderList() {
                     mb: 1,
                   }}
                 >
-                  <Typography level="body-xs">{listItem.date}</Typography>
+                  <Typography level="body-xs">
+                    {formatDate(listItem.created_at)}
+                  </Typography>
                   <Typography level="body-xs">&bull;</Typography>
-                  <Typography level="body-xs">{listItem.id}</Typography>
+                  <Typography level="body-xs">{listItem.order_no}</Typography>
                 </Box>
                 <Box
                   sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
                 >
-                  <Link level="body-sm" component="button">
+                  <Link
+                    level="body-sm"
+                    component="button"
+                    onClick={() => onDownload(listItem)}
+                  >
                     Download
                   </Link>
-                  <RowMenu />
+                  {/* <RowMenu /> */}
+                  <Button variant="plain" onClick={() => onViewOrder(listItem)}>
+                    <Typography level="body-xs">View</Typography>
+                  </Button>
                 </Box>
               </div>
             </ListItemContent>
-            <Chip
+            {/* <Chip
               variant="soft"
               size="sm"
               startDecorator={
@@ -180,39 +132,15 @@ export default function OrderList() {
               }
             >
               {listItem.status}
-            </Chip>
+            </Chip> */}
           </ListItem>
           <ListDivider />
         </List>
       ))}
-      <Box
-        className="Pagination-mobile"
-        sx={{
-          display: { xs: "flex", md: "none" },
-          alignItems: "center",
-          py: 2,
-        }}
-      >
-        <IconButton
-          aria-label="previous page"
-          variant="outlined"
-          color="neutral"
-          size="sm"
-        >
-          <KeyboardArrowLeftIcon />
-        </IconButton>
-        <Typography level="body-sm" sx={{ mx: "auto" }}>
-          Page 1 of 10
-        </Typography>
-        <IconButton
-          aria-label="next page"
-          variant="outlined"
-          color="neutral"
-          size="sm"
-        >
-          <KeyboardArrowRightIcon />
-        </IconButton>
-      </Box>
+      <PaginationMobile
+        onPageChange={(data) => handlePageChange(data)}
+        {...pagination}
+      />
     </Box>
   );
 }

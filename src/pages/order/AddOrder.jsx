@@ -12,7 +12,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Loader, Toast } from "../../components";
+import { Loader } from "../../components";
 import { useGetData, usePostData } from "../../utils/api";
 import {
   getUser,
@@ -31,6 +31,7 @@ const initialStates = {
   address: "",
   pinCode: "",
   city: "",
+  district: "",
   state: "",
   country: "",
   selectedProduct: null,
@@ -40,21 +41,44 @@ const initialStates = {
 };
 const fetchLocationByPinCode = async (pinCode) => {
   try {
-    const response = await fetch(`http://api.zippopotam.us/in/${pinCode}`);
-    if (!response.ok) throw new Error("Network response was not ok");
+    const response = await fetch(
+      `https://api.postalpincode.in/pincode/${pinCode}`
+    );
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
     const data = await response.json();
-    return {
-      city: data.places ? data.places[0]["place name"] : "",
-      state: data.places ? data.places[0]["state"] : "",
-      country: data["country"] || "",
-    };
+
+    if (data[0].Status === "Success") {
+      const locationInfo = data[0].PostOffice[0];
+      const city = locationInfo.Name;
+      const district = locationInfo.District;
+      const state = locationInfo.State;
+      const country = locationInfo.Country;
+
+      return {
+        city,
+        district,
+        state,
+        country,
+      };
+    } else {
+      return null;
+    }
   } catch (error) {
-    console.error("Error fetching location data:", error);
+    console.error("Error fetching location data:", error.message);
     return null;
   }
 };
 
-export default function AddOrderModal({ open, handleClose, setToastOpen }) {
+export default function AddOrderModal({
+  open,
+  handleClose,
+  setToastData,
+  order,
+}) {
   const [orderData, setOrderData] = useState(initialStates);
 
   const [error, setErrors] = useState(initialStates);
@@ -65,22 +89,55 @@ export default function AddOrderModal({ open, handleClose, setToastOpen }) {
   const mutation = usePostData("orders/create_order");
 
   useEffect(() => {
-    if (data?.length) {
+    if (!order && data?.length) {
       setOrderData((prevState) => ({
         ...prevState,
         selectedProduct: data[0],
       }));
+    } else if (order) {
+      const { unit_price, quantity, customer, device } = order || {};
+      const {
+        first_name,
+        last_name,
+        mobile,
+        email,
+        address,
+        pincode,
+        city,
+        district,
+        state,
+        country,
+        gst_no,
+      } = customer || {};
+      setOrderData((prevState) => ({
+        ...prevState,
+        firstName: first_name,
+        lastName: last_name,
+        mobileNo: mobile,
+        email,
+        address,
+        pinCode: pincode,
+        city,
+        district,
+        state,
+        country,
+        selectedProduct: device,
+        quantity,
+        unitPrice: unit_price,
+        gstNo: gst_no,
+      }));
     }
-  }, [data]);
+  }, [data, order]);
   useEffect(() => {
     const { pinCode } = orderData;
-    if (pinCode.length === 6) {
+    if (pinCode?.length === 6) {
       setLoading(true);
       fetchLocationByPinCode(pinCode).then((data) => {
         if (data) {
           setOrderData((prevState) => ({
             ...prevState,
             city: data.city || "",
+            district: data.district || "",
             state: data.state || "",
             country: data.country || "",
           }));
@@ -114,7 +171,7 @@ export default function AddOrderModal({ open, handleClose, setToastOpen }) {
     if (!orderData.mobileNo) {
       newErrors.mobileNo = "Mobile No is required.";
     } else if (!isValidMobileNumber(orderData.mobileNo)) {
-      newErrors.mobileNo = "Mobile No must be a valid Indian number.";
+      newErrors.mobileNo = "Mobile No must be a valid number.";
     }
     if (orderData.email && !isValidEmail(orderData.email)) {
       newErrors.email = "Please enter a valid email address.";
@@ -137,7 +194,7 @@ export default function AddOrderModal({ open, handleClose, setToastOpen }) {
     return newErrors;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (isShare) => {
     const validationErrors = validateFields();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -149,11 +206,12 @@ export default function AddOrderModal({ open, handleClose, setToastOpen }) {
       quantity,
       firstName,
       lastName,
-      mobile,
+      mobileNo,
       email,
       address,
       pinCode,
       city,
+      district,
       state,
       country,
       gstNo,
@@ -166,34 +224,48 @@ export default function AddOrderModal({ open, handleClose, setToastOpen }) {
       quantity: parseInt(quantity, 10),
       first_name: firstName,
       last_name: lastName,
-      mobile,
+      mobile: mobileNo,
       email,
       address,
       pincode: pinCode,
       city,
+      district,
       state,
       country,
       gst_no: gstNo,
       user_id: userInfo.id,
+      isShare,
     };
 
     mutation
       .mutateAsync(requestObject)
-      .then(({ data }) => {
-        setToastOpen(true);
-        handleClose();
+      .then((data) => {
+        if (data) {
+          setToastData(() => ({
+            open: true,
+            message: "Order created successfully.",
+            severity: "success",
+          }));
+          handleClose();
+        }
       })
-      .catch((error) => {});
+      .catch((error) => {
+        setToastData(() => ({
+          open: true,
+          message: error?.message || "Something went wrong.",
+          severity: "error",
+        }));
+      });
   };
   const isMobileNumberValid = isValidMobileNumber(orderData.mobileNo || "");
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
-      <DialogTitle>Add Order</DialogTitle>
+      <DialogTitle>{order ? "View" : "Add"} Order</DialogTitle>
       <Divider />
       <DialogContent
         sx={{ display: "flex", flexDirection: "column", gap: 2, width: "100%" }}
       >
-        <Loader loading={isLoading || loading} />
+        <Loader loading={isLoading || mutation.isLoading || loading} />
         <Typography level="h6">Customer Details</Typography>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
           <FormControl>
@@ -338,6 +410,25 @@ export default function AddOrderModal({ open, handleClose, setToastOpen }) {
           </FormControl>
           <FormControl>
             <TextField
+              id="district"
+              autoComplete="district"
+              size="small"
+              margin="dense"
+              name="district"
+              label="District"
+              placeholder="District"
+              type="text"
+              fullWidth
+              error={!!error.district}
+              helperText={error.district}
+              sx={{ ariaLabel: "district" }}
+              color={error.district ? "error" : "primary"}
+              value={orderData.district}
+              onChange={handleOrderChange}
+            />
+          </FormControl>
+          <FormControl>
+            <TextField
               id="state"
               autoComplete="state"
               size="small"
@@ -462,16 +553,22 @@ export default function AddOrderModal({ open, handleClose, setToastOpen }) {
       </DialogContent>
       <DialogActions sx={{ pb: 3, px: 3 }}>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleSubmit}>
-          Save
-        </Button>
-        <Button
-          variant="contained"
-          onClick={handleSubmit}
-          disabled={!isMobileNumberValid}
-        >
-          Save & Whatsapp
-        </Button>
+        {order ? null : (
+          <>
+            <Button variant="contained" onClick={() => handleSubmit()}>
+              Save
+            </Button>
+            <Button
+              variant="contained"
+              onClick={
+                isMobileNumberValid ? () => handleSubmit(true) : () => {}
+              }
+              disabled={!isMobileNumberValid}
+            >
+              Save & Whatsapp
+            </Button>
+          </>
+        )}
       </DialogActions>
     </Dialog>
   );

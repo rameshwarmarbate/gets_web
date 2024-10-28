@@ -1,9 +1,18 @@
+import { upperCase } from "lodash";
+import moment from "moment";
 const setToken = (token, remember) => {
   if (remember) {
     localStorage.setItem("token", token);
   } else {
     sessionStorage.setItem("token", token);
   }
+};
+const getToken = () => {
+  let token = sessionStorage.getItem("token");
+  if (!token) {
+    token = localStorage.getItem("token", token);
+  }
+  return token || "";
 };
 
 const setUser = (user) => {
@@ -19,11 +28,7 @@ const getUser = () => {
 };
 
 const isUserAuthenticated = () => {
-  let token = sessionStorage.getItem("token");
-  if (!token) {
-    token = localStorage.getItem("token", token);
-  }
-  return !!token;
+  return !!getToken();
 };
 
 const removeToken = () => {
@@ -80,9 +85,28 @@ const isValidName = (name) => {
   const namePattern = /^[A-Za-z\s]+$/;
   return namePattern.test(name);
 };
+
+const formatDate = (date, format = "DD-MM-YYYY") => {
+  if (!date) return "";
+
+  return moment(date).format(format);
+};
+const getInitial = (text) => {
+  if (text) {
+    return upperCase(text.charAt(0));
+  }
+  return "";
+};
+function formatNumber(num = 0, decimal = 2) {
+  if (!num || isNaN(parseFloat(num))) {
+    return 0;
+  }
+  return parseFloat(parseFloat(num || 0)?.toFixed(decimal));
+}
 export {
   isUserAuthenticated,
   setToken,
+  getToken,
   removeToken,
   setUser,
   getUser,
@@ -91,4 +115,7 @@ export {
   isValidPinCode,
   isValidGSTNo,
   isValidName,
+  formatDate,
+  getInitial,
+  formatNumber,
 };

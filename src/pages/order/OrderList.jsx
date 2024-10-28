@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CssVarsProvider } from "@mui/joy/styles";
 import CssBaseline from "@mui/joy/CssBaseline";
 import Box from "@mui/joy/Box";
@@ -15,13 +15,43 @@ import OrderList from "../../components/OrderList";
 import Header from "../../components/Header";
 import { AddCircleOutlineRounded } from "@mui/icons-material";
 import AddOrder from "./AddOrder";
-import { Toast } from "../../components";
+import { Loader, Toast } from "../../components";
+import { fetchApi, useGetData } from "../../utils/api";
+import { saveAs } from "file-saver";
+
+const initialStates = {
+  open: false,
+  message: "",
+  severity: "",
+};
+const initialPageStates = { page: 0, pageSize: 25, totalRecords: 0 };
 
 export default function OrderDashboardTemplate() {
   const [open, setOpen] = useState(false);
-  const [toastOpen, setToastOpen] = useState(false);
+  const [pagination, setPagination] = useState(initialPageStates);
+  const [toastData, setToastData] = useState(initialStates);
+  const [order, setOrder] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { page = 0, pageSize = 5 } = pagination;
+  const { data, isLoading } = useGetData(
+    `orders/order-list?page=${page}&pageSize=${pageSize}`
+  );
+  const { totalCount = 0 } = data || {};
 
+  useEffect(() => {
+    if (totalCount) {
+      setPagination((prevState) => ({
+        ...prevState,
+        totalRecords: totalCount,
+      }));
+    }
+  }, [totalCount, setPagination]);
+
+  const handlePageChange = (pageNumber) => {
+    setPagination((prevState) => ({ ...prevState, page: pageNumber }));
+  };
   const handleClickOpen = () => {
+    setOrder("");
     setOpen(true);
   };
 
@@ -29,8 +59,27 @@ export default function OrderDashboardTemplate() {
     setOpen(false);
   };
 
+  const onViewOrder = (order) => {
+    setOpen(true);
+    setOrder(order);
+  };
+
+  const onDownload = (order) => {
+    setLoading(true);
+    fetchApi(`orders/download-invoice?order_id=${order?.id}`).then((data) => {
+      if (data.pdfBase64) {
+        const { pdfBase64 } = data;
+        const pdfDataUrl = `data:application/pdf;base64,${pdfBase64}`;
+        saveAs(pdfDataUrl, `invoice-${data.order.order_no}.pdf`);
+      }
+      setLoading(false);
+    });
+  };
+
+  const { open: toastOpen, message, severity } = toastData;
   return (
     <>
+      <Loader loading={isLoading || loading} />
       <CssVarsProvider disableTransitionOnChange>
         <CssBaseline />
         <Box sx={{ display: "flex", minHeight: "100dvh" }}>
@@ -96,8 +145,20 @@ export default function OrderDashboardTemplate() {
                 Add Order
               </Button>
             </Box>
-            <OrderTable />
-            <OrderList />
+            <OrderTable
+              orderData={data}
+              handlePageChange={handlePageChange}
+              pagination={pagination}
+              onViewOrder={onViewOrder}
+              onDownload={onDownload}
+            />
+            <OrderList
+              orderData={data}
+              handlePageChange={handlePageChange}
+              pagination={pagination}
+              onViewOrder={onViewOrder}
+              onDownload={onDownload}
+            />
           </Box>
         </Box>
       </CssVarsProvider>
@@ -105,14 +166,15 @@ export default function OrderDashboardTemplate() {
         <AddOrder
           open={open}
           handleClose={handleClose}
-          setToastOpen={setToastOpen}
+          setToastData={setToastData}
+          order={order}
         />
       ) : null}
       <Toast
-        open={toastOpen}
-        handleClose={() => setToastOpen(false)}
-        message="Order created successfully."
-        severity="success"
+        open={!!toastOpen}
+        handleClose={() => setToastData(initialStates)}
+        message={message}
+        severity={severity}
       />
     </>
   );
