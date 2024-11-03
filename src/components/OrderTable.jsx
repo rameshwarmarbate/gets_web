@@ -35,6 +35,8 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 import { formatDate, getInitial } from "../utils/helpers";
 import Pagination from "./Pagination";
+import { useGetData } from "../utils/api";
+import { map } from "lodash";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -78,12 +80,30 @@ export default function OrderTable({
   handlePageChange,
   onViewOrder,
   onDownload,
+  onApply,
 }) {
   const [order, setOrder] = React.useState("desc");
   const [selected, setSelected] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const { data: orders = [] } = orderData || {};
+  const { data, isLoading: loading } = useGetData(
+    "device/get-device-by-name?name=Electric Hot Water Bag"
+  );
+  const { data: customers } = useGetData("customers/get-customers");
+  const [search, setSearch] = useState({
+    invoice: "",
+    product_id: null,
+    customer_id: null,
+  });
 
+  const onSearch = () => {
+    const { invoice, product_id, customer_id } = search;
+    onApply({
+      invoice,
+      product_id: product_id || "",
+      customer_id: customer_id || "",
+    });
+  };
   const renderFilters = () => (
     <React.Fragment>
       <FormControl size="sm">
@@ -92,8 +112,15 @@ export default function OrderTable({
           size="sm"
           placeholder="Filter by product"
           slotProps={{ button: { sx: { whiteSpace: "nowrap" } } }}
+          onChange={(e, value) => {
+            setSearch((prevState) => ({ ...prevState, product_id: value }));
+          }}
         >
-          <Option value="paid">Hot Water Bag</Option>
+          {map(data, (option) => (
+            <Option key={option.id} value={option.id}>
+              {option.title}
+            </Option>
+          ))}
         </Select>
       </FormControl>
       {/* <FormControl size="sm">
@@ -107,14 +134,25 @@ export default function OrderTable({
       </FormControl> */}
       <FormControl size="sm">
         <FormLabel>Customer</FormLabel>
-        <Select size="sm" placeholder="All">
-          <Option value="all">All</Option>
+        <Select
+          size="sm"
+          placeholder="All"
+          onChange={(e, value) => {
+            setSearch((prevState) => ({ ...prevState, customer_id: value }));
+          }}
+        >
+          {/* <Option value="all">All</Option>
           <Option value="olivia">Olivia Rhye</Option>
           <Option value="steve">Steve Hampton</Option>
           <Option value="ciaran">Ciaran Murray</Option>
           <Option value="marina">Marina Macdonald</Option>
           <Option value="charles">Charles Fulton</Option>
-          <Option value="jay">Jay Hoper</Option>
+          <Option value="jay">Jay Hoper</Option> */}
+          {map(customers, (customer) => (
+            <Option key={customer.id} value={customer.id}>
+              {customer.first_name} {customer.last_name}
+            </Option>
+          ))}
         </Select>
       </FormControl>
     </React.Fragment>
@@ -127,7 +165,7 @@ export default function OrderTable({
       >
         <Input
           size="sm"
-          placeholder="Search"
+          placeholder="Search Invoice #"
           startDecorator={<SearchIcon />}
           sx={{ flexGrow: 1 }}
         />
@@ -164,7 +202,7 @@ export default function OrderTable({
           flexWrap: "wrap",
           gap: 1.5,
           "& > *": {
-            minWidth: { xs: "120px", md: "160px" },
+            minWidth: { xs: "130px", md: "180px" },
           },
         }}
       >
@@ -172,14 +210,14 @@ export default function OrderTable({
           <FormLabel>Search for order</FormLabel>
           <Input
             size="sm"
-            placeholder="Search"
+            placeholder="Search Invoice #"
             startDecorator={<SearchIcon />}
           />
         </FormControl>
         {renderFilters()}
         <FormControl size="sm">
           <br />
-          <Button color="primary" size="sm">
+          <Button color="primary" size="sm" onClick={onSearch}>
             Apply
           </Button>
         </FormControl>

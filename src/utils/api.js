@@ -27,8 +27,13 @@ export const fetchApi = async (endpoint, options = {}) => {
 };
 
 // Function to get data from an endpoint
-export const useGetData = (endpoint) => {
-  return useQuery([endpoint], () => fetchApi(endpoint));
+export const useGetData = (endpoint, params) => {
+  return useQuery([endpoint], () =>
+    fetchApi(endpoint, {
+      method: "GET",
+      params,
+    })
+  );
 };
 
 // Function to post data to an endpoint
