@@ -70,7 +70,7 @@ export default function OrderDashboardTemplate() {
       if (data.pdfBase64) {
         const { pdfBase64 } = data;
         const pdfDataUrl = `data:application/pdf;base64,${pdfBase64}`;
-        saveAs(pdfDataUrl, `invoice-${data?.order?.order_no || ""}.pdf`);
+        saveAs(pdfDataUrl, `Invoice-${data?.order?.order_no || ""}.pdf`);
       }
       setLoading(false);
     });
