@@ -33,7 +33,7 @@ export default function OrderDashboardTemplate() {
   const [order, setOrder] = useState("");
   const [loading, setLoading] = useState(false);
   const { page = 0, pageSize = 5 } = pagination;
-  const { data, isLoading } = useGetData(
+  const { data, isLoading, refetch } = useGetData(
     `orders/order-list?page=${page}&pageSize=${pageSize}`
   );
   const { totalCount = 0 } = data || {};
@@ -168,6 +168,7 @@ export default function OrderDashboardTemplate() {
           handleClose={handleClose}
           setToastData={setToastData}
           order={order}
+          refetch={refetch}
         />
       ) : null}
       <Toast

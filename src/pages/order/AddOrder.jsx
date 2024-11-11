@@ -78,6 +78,7 @@ export default function AddOrderModal({
   handleClose,
   setToastData,
   order,
+  refetch
 }) {
   const [orderData, setOrderData] = useState(initialStates);
 
@@ -247,6 +248,7 @@ export default function AddOrderModal({
             severity: "success",
           }));
           handleClose();
+          refetch()
         }
       })
       .catch((error) => {
@@ -561,7 +563,7 @@ export default function AddOrderModal({
             <Button
               variant="contained"
               onClick={
-                isMobileNumberValid ? () => handleSubmit(true) : () => {}
+                isMobileNumberValid ? () => handleSubmit(true) : () => { }
               }
               disabled={!isMobileNumberValid}
             >
